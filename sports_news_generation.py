@@ -74,7 +74,11 @@ def get_time_match_name():
                                             time = number[index] + "点" + number[index+1]
                                             print "334", time, line, dir_item
                                             time_found_tag = True
-
+                if not date_found_tag:
+                    date = "#"
+                if not time_found_tag:
+                    time = "#"
+                print "name, number,date,time,dir_item",name, dir_item,number,dir_item,date,dir_item,time,dir_item
     f.close()
 
 if __name__ == '__main__':
