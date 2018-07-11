@@ -47,23 +47,36 @@ def get_time_match_name():
                                     print "111", name, number, dir_item, line
                                     name_found_tag = True
                                     break  # 比赛名称一旦找到，就跳出循环，不用再继续下文了
-                        else:
-                            if not date_found_tag:  # 开始查找比赛日期
+
+                        # =========================================================================
+                        # 注意：日期提取完成后，有可能时间与日期在同一行，但以上日期已经break
+                        # =========================================================================
+                        elif not date_found_tag:  # 开始查找比赛日期
                                 print "line2", line
                                 number = (re.findall('(\d+)', line[:len(line) - 4]))
                                 if len(number) >= 2:
-                                    if number[0] + "月" + number[1] + "日" in line:
-                                        date = number[0] + "月" + number[1] + "日"  # 日期匹配
-                                        print '222', date, line, dir_item
-                                        date_found_tag = True
-                                        if len(number) >= 4:
-                                            if number[2] + "：" + number[3] in line:
-                                                time = number[2] + "：" + number[3]  # 时间匹配，注意中文":"
-                                                print "333", time, line, dir_item
-                                        break
-                        # else:
-                        #     if not time_found_tag:
-                        #
+                                    for index in range(len(number)-1):  # 注意“-1”，否则“list index out of range”
+                                        if number[index] + "月" + number[index+1] + "日" in line:  # 日期匹配 匹配“2月3日”
+                                            date = number[index] + "月" + number[index+1] + "日"
+                                            print '222', date, line, dir_item
+                                            date_found_tag = True
+                                            break
+                        else:
+                            if not time_found_tag:  # 开始查找比赛时间
+                                print "line3", line
+                                number = (re.findall('(\d+)', line[:len(line) - 4]))
+                                if len(number) >= 2:
+                                    for index_0 in range(len(number)-1):
+                                        if number[index_0] + "：" + number[index_0+1] in line:  # 时间匹配，注意中文":"，匹配“3：45”
+                                            time = number[index_0] + "：" + number[index_0+1]
+                                            print "333", time, line, dir_item
+                                            time_found_tag = True
+                                            break
+                                        if number[index_0] + "点" + number[index_0+1] in line:  # 匹配“3点45”
+                                            time = number[index_0] + "点" + number[index_0+1]
+                                            print "334", time, line, dir_item
+                                            time_found_tag = True
+                                            break
 
 
 
