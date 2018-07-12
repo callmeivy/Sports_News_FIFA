@@ -7,7 +7,6 @@
 import os
 import sys
 import re
-# from nltk.corpus import treebank
 
 data = dict()
 path = '/home/ivy/文档/wanxiaojun/NLPCC2016Eval-Task5-AllData/sampleData/SampleData'
