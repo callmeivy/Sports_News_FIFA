@@ -7,12 +7,12 @@
 import os
 import sys
 import re
-from nltk.corpus import treebank
+# from nltk.corpus import treebank
 
 data = dict()
 path = '/home/ivy/文档/wanxiaojun/NLPCC2016Eval-Task5-AllData/sampleData/SampleData'
 
-# 读取比赛名称库赌
+# 读取比赛名称库
 def match_name():
     match_names = list()
     with open('match_name', 'r') as f:
@@ -40,9 +40,13 @@ def get_time_match_name():
                     name_found_tag = False  # 注意位置，否则一旦true了，就无法还原判断
                     date_found_tag = False  # 注意位置
                     time_found_tag = False  # 注意位置
+                    GMT_8 = False
                     for i in range(10):  # 比赛名称、日期、时间一般出现在文字直播前十行，不需要全文读取
                         line = f.readline().strip()
                         # print "line", line
+                        # if not GMT_8:  # 是否北京时间
+                        #     if "北京时间" in line:
+                        #         GMT_8 = True
                         number = (re.findall('(\d+)', line[:len(line) - 4]))  # 数字抽取
                         # 开始查找比赛名称
                         for name in match_names:
@@ -112,6 +116,6 @@ def get_match_teams():
 
 
 if __name__ == '__main__':
-    # get_time_match_name()
+    get_time_match_name()
     # match_name()
-    get_match_teams()
+    # get_match_teams()
