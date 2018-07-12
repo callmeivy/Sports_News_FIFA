@@ -101,6 +101,19 @@ def get_time_match_name():
                 print "name, number,date,time,dir_item",name_match,match_number,date,time,dir_item
     f.close()
 
+
+# 获取句子模板
+def get_sen_template():
+    sen_template = list()
+    with open('sentence_template', 'r') as f:
+        for line in f.readlines():
+            line = line.strip().split("   ")
+            sen_template.append(line)
+    f.close()
+    return sen_template
+
+
+
 # 获取比赛队名
 def get_match_teams():
     for dir_item in os.listdir(path):
@@ -110,11 +123,22 @@ def get_match_teams():
                 with open(dir_item_path, 'r') as f:
                     for i in range(1):
                         line = f.readline().strip()
-                        teams = line.split(",")[0] + "," + line.split(",")[2]
-                        print teams, dir_item
+                        # 阿森纳VS切尔西，左边是主场，右边是客场
+                        home_team = line.split(",")[0]
+                        away_team = line.split(",")[2]
+                    # print home_team, away_team, dir_item
+                for sentence in get_sen_template():  # 句子模板套用，此处为第一段第三句
+                    if sentence[0] == "p1s3":
+                        ss = (sentence[1]).replace("【","")
+                        sen = (ss).replace("】", "")
+                        sent = sen.replace("home_team", home_team)
+                        sente = sent.replace("away_team", away_team)
+                        print sente, dir_item
+    f.close()
 
 
 if __name__ == '__main__':
-    get_time_match_name()
+    # get_time_match_name()
     # match_name()
-    # get_match_teams()
+    get_match_teams()
+    # get_sen_template()
