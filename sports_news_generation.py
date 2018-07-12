@@ -29,7 +29,7 @@ def match_type_chinese():
     return ma
 
 
-# 获取比赛名称及时间
+# 获取比赛名称及时间，并根据相应的句子模板，生成句子
 def get_time_match_name():
     match_names = match_name()
     for dir_item in os.listdir(path):
@@ -131,7 +131,7 @@ def get_sen_template():
     return sen_template
 
 
-# 获取比赛队名
+# 获取比赛队名，并根据相应的句子模板，生成句子
 def get_match_teams():
     for dir_item in os.listdir(path):
         if dir_item.endswith("tec.csv"):
