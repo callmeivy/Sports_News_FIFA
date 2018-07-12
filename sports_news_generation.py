@@ -5,13 +5,14 @@
 # time: 07/09/2018 15:53 PM
 # Copyright 2018 Ivy Jin. All Rights Reserved.
 import os
-import sys
 import re
 
 data = dict()
 path = '/home/ivy/文档/wanxiaojun/NLPCC2016Eval-Task5-AllData/sampleData/SampleData'
 
+
 # 读取比赛名称库
+# 函数前面应当有两个空行
 def match_name():
     match_names = list()
     with open('match_name', 'r') as f:
@@ -21,15 +22,16 @@ def match_name():
     f.close()
     return match_names
 
+
 # 读取比赛方式
 def match_type_chinese():
     ma = ["决赛", "半决赛", "四分之一决赛", "八分之一决赛", "预赛", "淘汰赛"]
     return ma
 
+
 # 获取比赛名称及时间
 def get_time_match_name():
     match_names = match_name()
-    name_numer = list()
     for dir_item in os.listdir(path):
         # print "dir_item", dir_item
         if dir_item.endswith("live.csv"):
@@ -39,7 +41,7 @@ def get_time_match_name():
                     name_found_tag = False  # 注意位置，否则一旦true了，就无法还原判断
                     date_found_tag = False  # 注意位置
                     time_found_tag = False  # 注意位置
-                    GMT_8 = False
+                    # GMT_8 = False
                     for i in range(10):  # 比赛名称、日期、时间一般出现在文字直播前十行，不需要全文读取
                         line = f.readline().strip()
                         # print "line", line
@@ -61,9 +63,10 @@ def get_time_match_name():
                                                 match_number = number[0] + '/' + number[1] + "决赛"  # 1/8决赛
                                             if number[0] + '-' + number[1] in line:
                                                 match_number = number[0] + '-' + number[1]  # 15-16赛季英超联赛
-                                    else:
+                                    if len(number) == 1:
                                         name_match = name
-                                        match_number = number
+                                        match_number = "第" + number[0] + "轮"
+                                        print "ooo",match_number, type(match_number),len(match_number)
                                     for ma_ty in match_type_chinese():  # 八分之一决赛
                                         if ma_ty in line:
                                             name_match = name_match + ma_ty
@@ -98,7 +101,22 @@ def get_time_match_name():
                     date = "#"
                 if not time_found_tag:
                     time = "#"
-                print "name, number,date,time,dir_item",name_match,match_number,date,time,dir_item
+                print "name, number,date,time,dir_item", name_match, match_number, date, time, dir_item
+                for sentence in get_sen_template():  # 句子模板套用
+                    # 此处为第一段第一句
+                    if sentence[0] == "p1s1":
+                        ss = (sentence[1]).replace("【", "")
+                        sen = (ss).replace("】", "")
+                        sent = sen.replace("date", date)
+                        sente = sent.replace("time", time)
+                        print sente, dir_item
+                    # 此处为第一段第二句
+                    if sentence[0] == "p1s2":
+                        ss = (sentence[1]).replace("【", "")
+                        sen = (ss).replace("】", "")
+                        sent = sen.replace("match_name", name_match+str(match_number))
+                        print sent, dir_item
+
     f.close()
 
 
@@ -111,7 +129,6 @@ def get_sen_template():
             sen_template.append(line)
     f.close()
     return sen_template
-
 
 
 # 获取比赛队名
@@ -127,18 +144,20 @@ def get_match_teams():
                         home_team = line.split(",")[0]
                         away_team = line.split(",")[2]
                     # print home_team, away_team, dir_item
-                for sentence in get_sen_template():  # 句子模板套用，此处为第一段第三句
+                for sentence in get_sen_template():  # 句子模板套用
+                    # 此处为第一段第三句
                     if sentence[0] == "p1s3":
-                        ss = (sentence[1]).replace("【","")
+                        ss = (sentence[1]).replace("【", "")
                         sen = (ss).replace("】", "")
                         sent = sen.replace("home_team", home_team)
                         sente = sent.replace("away_team", away_team)
                         print sente, dir_item
+
     f.close()
 
 
 if __name__ == '__main__':
-    # get_time_match_name()
+    get_time_match_name()
     # match_name()
-    get_match_teams()
+    # get_match_teams()
     # get_sen_template()
