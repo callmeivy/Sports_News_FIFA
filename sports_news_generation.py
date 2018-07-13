@@ -25,13 +25,14 @@ def match_name():
 
 # 读取比赛方式
 def match_type_chinese():
-    ma = ["决赛", "半决赛", "四分之一决赛", "八分之一决赛", "预赛", "淘汰赛"]
+    ma = ["半决赛", "四分之一决赛", "八分之一决赛", "预赛", "淘汰赛"]
     return ma
 
 
 # 获取比赛名称及时间，并根据相应的句子模板，生成句子
 def get_time_match_name():
     match_names = match_name()
+    sen_dir = dict()
     for dir_item in os.listdir(path):
         # print "dir_item", dir_item
         if dir_item.endswith("live.csv"):
@@ -42,7 +43,7 @@ def get_time_match_name():
                     date_found_tag = False  # 注意位置
                     time_found_tag = False  # 注意位置
                     # GMT_8 = False
-                    for i in range(10):  # 比赛名称、日期、时间一般出现在文字直播前十行，不需要全文读取
+                    for i in range(15):  # 比赛名称、日期、时间一般出现在文字直播前十行，不需要全文读取
                         line = f.readline().strip()
                         # print "line", line
                         # if not GMT_8:  # 是否北京时间
@@ -52,8 +53,13 @@ def get_time_match_name():
                         # 开始查找比赛名称
                         for name in match_names:
                             if not name_found_tag:  # 一旦找到，就不用继续下文了
+                                ind = 0
                                 if name in line:
+                                    ind += 1
+                                    if ind > 3:  # 下文可能提到其他历史比赛名称，并不是该场比赛名称
+                                        break
                                     if len(number) == 0:
+                                        name_match = name
                                         match_number = 0
                                     if len(number) > 1:
                                         if line.index(name) < line.index(number[-1]):  # 比赛名称中的数字定在名称之后，防止提取出来是日期数字等
@@ -65,12 +71,11 @@ def get_time_match_name():
                                                 match_number = number[0] + '-' + number[1]  # 15-16赛季英超联赛
                                     if len(number) == 1:
                                         name_match = name
-                                        match_number = "第" + number[0] + "轮"
-                                        print "ooo",match_number, type(match_number),len(match_number)
+                                        match_number = "第" + number[0] + "轮的一场焦点战"
+                                        # print "ooo",match_number, type(match_number),len(match_number)
                                     for ma_ty in match_type_chinese():  # 八分之一决赛
                                         if ma_ty in line:
                                             name_match = name_match + ma_ty
-                                    # print "111", name_match, match_number, dir_item, line
                                     name_found_tag = True
                                     # break  # name_found_tag判断就可以，无需break
 
@@ -101,23 +106,26 @@ def get_time_match_name():
                     date = "#"
                 if not time_found_tag:
                     time = "#"
-                print "name, number,date,time,dir_item", name_match, match_number, date, time, dir_item
+                # print "name, number,date,time,dir_item", name_match, match_number, date, time, dir_item
                 for sentence in get_sen_template():  # 句子模板套用
                     # 此处为第一段第一句
-                    if sentence[0] == "p1s1":
-                        ss = (sentence[1]).replace("【", "")
+                    if sentence[1] == "p1s1":
+                        ss = (sentence[2]).replace("【", "")
                         sen = (ss).replace("】", "")
                         sent = sen.replace("date", date)
                         sente = sent.replace("time", time)
-                        print sente, dir_item
+                        # print sente, dir_item
                     # 此处为第一段第二句
-                    if sentence[0] == "p1s2":
-                        ss = (sentence[1]).replace("【", "")
+                    if sentence[1] == "p1s2":
+                        ss = (sentence[2]).replace("【", "")
                         sen = (ss).replace("】", "")
                         sent = sen.replace("match_name", name_match+str(match_number))
-                        print sent, dir_item
+                        # print sent, dir_item
+                    sen_dir[dir_item] = sente + sent
 
     f.close()
+    # print sen_dir.keys()
+    return sen_dir
 
 
 # 获取句子模板
@@ -133,9 +141,10 @@ def get_sen_template():
 
 # 获取比赛队名，并根据相应的句子模板，生成句子
 def get_match_teams():
-    for dir_item in os.listdir(path):
-        if dir_item.endswith("tec.csv"):
-            dir_item_path = os.path.join(path, dir_item)
+    sent_dir = dict()
+    for dir_item_mn in os.listdir(path):
+        if dir_item_mn.endswith("tec.csv"):
+            dir_item_path = os.path.join(path, dir_item_mn)
             if os.path.isfile(dir_item_path):
                 with open(dir_item_path, 'r') as f:
                     for i in range(1):
@@ -146,18 +155,32 @@ def get_match_teams():
                     # print home_team, away_team, dir_item
                 for sentence in get_sen_template():  # 句子模板套用
                     # 此处为第一段第三句
-                    if sentence[0] == "p1s3":
-                        ss = (sentence[1]).replace("【", "")
-                        sen = (ss).replace("】", "")
-                        sent = sen.replace("home_team", home_team)
-                        sente = sent.replace("away_team", away_team)
-                        print sente, dir_item
+                    if sentence[1] == "p1s3":
+                        ss_mn = (sentence[2]).replace("【", "")
+                        sen_mn = (ss_mn).replace("】", "")
+                        sent_mn = sen_mn.replace("home_team", home_team)
+                        sentee_mn = sent_mn.replace("away_team", away_team)
+                        sent_dir[dir_item_mn] = sentee_mn
 
     f.close()
+    # print sent_dir.keys()
+    return sent_dir
+
+
+def generate_paragraph_1():
+    a = get_time_match_name()
+    b = get_match_teams()
+    for dir in a.keys():
+        dir_b = dir.replace("live", "tec")  # 文件名数字一样，并不完全一样
+        if b.has_key(dir_b):
+            print a[dir] + b[dir_b]
+
+
 
 
 if __name__ == '__main__':
-    get_time_match_name()
+    # get_time_match_name()
     # match_name()
     # get_match_teams()
     # get_sen_template()
+    generate_paragraph_1()
