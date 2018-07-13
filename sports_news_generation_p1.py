@@ -62,7 +62,8 @@ def get_time_match_name():
                                         name_match = name
                                         match_number = 0
                                     if len(number) > 1:
-                                        if line.index(name) < line.index(number[-1]):  # 比赛名称中的数字定在名称之后，防止提取出来是日期数字等
+                                        if line.index(name) < line.index(number[-1]):  # 比赛名称中的数字定在名称之后，防止提取
+                                            # 出来是日期数字等
                                             name_match = name
                                             match_number = number
                                             if number[0] + '/' + number[1] in line:
@@ -110,18 +111,14 @@ def get_time_match_name():
                 for sentence in get_sen_template():  # 句子模板套用
                     # 此处为第一段第一句
                     if sentence[1] == "p1s1":
-                        ss = (sentence[2]).replace("【", "")
-                        sen = (ss).replace("】", "")
-                        sent = sen.replace("date", date)
-                        sente = sent.replace("time", time)
-                        # print sente, dir_item
+                        # replace可连用
+                        ss = (sentence[2]).replace("【", "").replace("】", "").replace("date", date).replace("time", \
+                             time)
                     # 此处为第一段第二句
                     if sentence[1] == "p1s2":
-                        ss = (sentence[2]).replace("【", "")
-                        sen = (ss).replace("】", "")
-                        sent = sen.replace("match_name", name_match+str(match_number))
-                        # print sent, dir_item
-                    sen_dir[dir_item] = sente + sent
+                        ss_1 = (sentence[2]).replace("【", "").replace("】", "").replace("match_name", name_match + \
+                                                                                       str(match_number))
+                        sen_dir[dir_item] = ss + ss_1
 
     f.close()
     # print sen_dir.keys()
@@ -156,11 +153,12 @@ def get_match_teams():
                 for sentence in get_sen_template():  # 句子模板套用
                     # 此处为第一段第三句
                     if sentence[1] == "p1s3":
-                        ss_mn = (sentence[2]).replace("【", "")
-                        sen_mn = (ss_mn).replace("】", "")
-                        sent_mn = sen_mn.replace("home_team", home_team)
-                        sentee_mn = sent_mn.replace("away_team", away_team)
-                        sent_dir[dir_item_mn] = sentee_mn
+                        ss_mn = (sentence[2]).replace("【", "").replace("】", "").replace("home_team", home_team)\
+                            .replace("away_team", away_team)
+                        # sen_mn = (ss_mn).replace("】", "")
+                        # sent_mn = sen_mn.replace("home_team", home_team)
+                        # sentee_mn = sent_mn.replace("away_team", away_team)
+                        sent_dir[dir_item_mn] = ss_mn
 
     f.close()
     # print sent_dir.keys()
@@ -174,8 +172,6 @@ def generate_paragraph_1():
         dir_b = dir.replace("live", "tec")  # 文件名数字一样，并不完全一样
         if b.has_key(dir_b):
             print a[dir] + b[dir_b]
-
-
 
 
 if __name__ == '__main__':
