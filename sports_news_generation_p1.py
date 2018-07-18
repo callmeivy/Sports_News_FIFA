@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# file: sports_news_generation.py
+# file: sports_news_generation_p1.py
 # author: Ivy Jin(c.ivy.jin@foxmail.com)
 # time: 07/09/2018 15:53 PM
+# 体育新闻第一段生成
 # Copyright 2018 Ivy Jin. All Rights Reserved.
 import os
 import re
@@ -107,7 +108,7 @@ def get_time_match_name():
                     date = "#"
                 if not time_found_tag:
                     time = "#"
-                # print "name, number,date,time,dir_item", name_match, match_number, date, time, dir_item
+                print "name, number,date,time,dir_item", name_match, match_number, date, time, dir_item
                 for sentence in get_sen_template():  # 句子模板套用
                     # 此处为第一段第一句
                     if sentence[1] == "p1s1":
