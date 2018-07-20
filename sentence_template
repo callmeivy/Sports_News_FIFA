@@ -1,3 +1,9 @@
 1   p1s1   北京时间【date】【time】，
 2   p1s2   【match_name】，
 3   p1s3   【home_team】主场出战【away_team】。
+4   p2s1   【home_team/away_team】有很多可以破门的机会，但都遗憾与进球无缘
+5   p2s1   【home_team/away_team】创造了【total_shoot】个能够破门的机会。
+6   p2s1   双方并没有获得什么破门的机会。
+7   p2s1   双方均有多次破门的机会。
+8   p2s3   【away_team】也在客场【final_score】【不敌对手/胜出】。
+9   p3s2    第【time_line】分钟，【live_scripts】
