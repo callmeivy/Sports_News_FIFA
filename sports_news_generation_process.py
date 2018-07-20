@@ -12,6 +12,17 @@ data = dict()
 path = '/home/ivy/文档/wanxiaojun/NLPCC2016Eval-Task5-AllData/sampleData/SampleData'
 
 
+# 获取句子模板
+def get_sen_template():
+    sen_template = list()
+    with open('sentence_template', 'r') as f:
+        for line in f.readlines():
+            line = line.strip().split("   ")
+            sen_template.append(line)
+    f.close()
+    return sen_template
+
+
 # 从文字直播抽取比赛过程精彩瞬间，将该瞬间前后一分钟的内容进行拼接，若拼接过程有重复，去重，生成相应段落
 def get_process():
     exciting_moment = ["手球", "越位", "铲球", "拉扯", "换人", "阻挡", "抬脚过高", "犯规", "黄牌", "红牌", "扑救", "解围", "射门", "出界",
@@ -35,6 +46,7 @@ def get_process():
                 for re in time_content_sort:
                     # 1 min before
                     if re[0] == time-1:  # re[0] is timeline
+                        # 前后1分钟文本内容拼接，避免重复拼接
                         if re[1] not in content_box:  # re[1] is live script
                             connect_content = re[1] + "##" + content
                             content_box.append(re[1])
@@ -48,6 +60,13 @@ def get_process():
                             time_connect_content[time-1] = connect_content
                             break
     time_connect_content = sorted(time_connect_content.items(), key=lambda d: d[0])
+    for data in time_connect_content:
+        for sentence in get_sen_template():  # 句子模板套用
+            # 此处为第三段第二句
+            if sentence[1] == "p3s2":
+                ss_mn = (sentence[2]).replace("【", "").replace("】", "").replace("time_line", str(data[0])) \
+                    .replace("live_scripts", str(data[1]))
+                print ss_mn + '\n'
     return time_connect_content
 
 
