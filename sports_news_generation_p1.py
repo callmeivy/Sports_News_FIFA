@@ -14,7 +14,7 @@ from datetime import timedelta
 path = '/home/ivy/PycharmProjects/Sports_News_FIFA/20180715'
 
 
-# 获取基本中英翻译
+# 获取自定义翻译词典
 def get_en_ch():
     en_to_ch = list()
     with open('en_to_ch', 'r') as f:
@@ -25,6 +25,7 @@ def get_en_ch():
     return en_to_ch
 
 
+# 基本英文翻译成中文
 def traslation(input_word):
     output_word = ""
     en_to_ch = get_en_ch()
@@ -37,6 +38,7 @@ def traslation(input_word):
     return output_word
 
 
+#  第一段：获取球赛基本情况，并根据相应的句子模板，生成句子
 def load_info():
     for dir_item in os.listdir(path):
         if dir_item.endswith("getMatchInfo.json"):
