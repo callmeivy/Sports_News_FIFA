@@ -39,7 +39,7 @@ def traslation(input_word):
 
 
 #  第一段：获取球赛基本情况，并根据相应的句子模板，生成句子
-def load_info():
+def generate_para1():
     for dir_item in os.listdir(path):
         if dir_item.endswith("getMatchInfo.json"):
             dir_item_path = os.path.join(path, dir_item)
@@ -58,23 +58,22 @@ def load_info():
                     stadiumname = match_info['MatchInfo']['StadiumName']
                     #  体育场所在城市
                     venuename = match_info['MatchInfo']['VenueName']
-                    print dateUTC, type(dateUTC)
                     #  UTCDate format 转为北京时间 +8hours
                     #  2018-07-15T15:00:00.0000000Z <type 'unicode'>
                     timearray = datetime.datetime.strptime(dateUTC[:19], "%Y-%m-%dT%H:%M:%S")
                     timearray = timearray + timedelta(hours = 8 )
-                    print timearray
                     #  第几轮比赛转为中文
-                    print stadiumname, venuename, hometeam, awayteam
                     round_name = traslation(roundname)
                     stadiumname = traslation(stadiumname)
                     venuename = traslation(venuename)
                     hometeam = traslation(hometeam)
                     awayteam = traslation(awayteam)
-                    print '北京时间{0}年{1}月{2}日{3}点，俄罗斯世界杯{4}在{5}{6}打响，{7}迎战{8}。'.format(
+                    para_1 = '北京时间{0}年{1}月{2}日{3}点，俄罗斯世界杯{4}在{5}{6}打响，{7}迎战{8}。'.format(
                         timearray.year, timearray.month, timearray.day, timearray.hour, round_name, venuename,
                         stadiumname, hometeam, awayteam)
+    print para_1
+    return para_1
 
 
 if __name__ == '__main__':
-    load_info()
+    generate_para1()
