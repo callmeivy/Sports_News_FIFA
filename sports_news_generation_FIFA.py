@@ -36,7 +36,8 @@ def traslation(input_word):
         if input_word_lo == line[0] or input_word == line[0]:
             output_word = line[1]
             break
-        else:output_word = input_word
+        else:
+            output_word = input_word
 
     return output_word
 
@@ -103,7 +104,7 @@ def generate_first_round_lineup():
     return para_line_up
 
 
-#  换人
+#  换人，不仅是换人，所有的event都提取出来了
 def generate_change():
     event_box = list()
     path_0 = r"F:\工作\Fifa_2018"  # 换人一般在60分钟以后，样本数据囊括不到
@@ -125,9 +126,9 @@ def generate_change():
                                 # Goal: 找出进球队及队员
                                 if event_type == 'Goal':
                                     print(one)
-                                    playerfromId = one["PlayerFromId"]
-                                    teamtoId = one["TeamToId"]
-                                    print(playerfromId, teamtoId)
+                                    playerfromid = one["PlayerFromId"]
+                                    teamtoid = one["TeamToId"]
+                                    print(playerfromid, teamtoid)
                                 # print(event_type)
                                 #  事件发生分钟数
                                 event_min = one["Minute"]
@@ -140,7 +141,7 @@ def generate_change():
                                     print(type_event)
                                     event_box.append(type_event)
     # ==========================================================
-    # event_box：
+    # event_box：后一位是分钟数
     # ['Goal', 28], ['Assist', 29], ['Tackle', 29]
     # ==========================================================
 
