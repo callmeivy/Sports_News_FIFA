@@ -90,10 +90,15 @@ def get_process():
                     time_connect_content[time] = content
                     # ======================================================
     time_connect_content_sort = sorted(time_connect_content.items(), key=lambda d: d[0])
-    # if len(time_connect_content_sort)
+    print(len(time_connect_content_sort))
     for data in time_connect_content_sort:
-        para_3 = '第{0}分钟，{1}。\n'.format(
-            data[0], data[1])
+        if data[0] == int(data[0]):
+            para_3 = '第{0}分钟，{1}。\n'.format(
+                data[0], data[1])
+        else:
+            # print(str(data[0])[-1], data[0])
+            para_3 = '加时赛第{0}分钟，{1}。\n'.format(
+                str(data[0])[-1], data[1])
         print(para_3)
 
 
@@ -104,8 +109,8 @@ def text_preprocess():
     for dir_item in os.listdir(path):
         time_content = dict()
         ind = 0
-        if os.path.isfile('01.csv'):
-            with open("01.csv", "r") as f:
+        if os.path.isfile('final_live_sina.csv'):
+            with open("final_live_sina.csv", "r") as f:
                 reader = csv.reader(f)
                 # 这里不需要readlines
                 for line in reader:

@@ -3,7 +3,7 @@
 # file: sports_news_generation_p1.py
 # author: Ivy Jin(c.ivy.jin@foxmail.com)
 # time: 07/23/2018 09:40 AM
-# 体育新闻第一段生成，基于FIFA数据及CNTV文字直播内容
+# 体育新闻第一段生成，基于FIFA数据及新浪文字直播内容（相对质量较高）
 # 第一段模板来自C5"全场战报"
 # Copyright 2018 Ivy Jin. All Rights Reserved.
 import os
@@ -11,13 +11,14 @@ import json
 import datetime
 from datetime import timedelta
 
-path = '/home/ivy/PycharmProjects/Sports_News_FIFA/20180715'
+# path = '/home/ivy/PycharmProjects/Sports_News_FIFA/20180715'
+path = 'F:\工作\Fifa_2018\\20180715\\random'
 
 
 # 获取自定义翻译词典
 def get_en_ch():
     en_to_ch = list()
-    with open('en_to_ch', 'r') as f:
+    with open('en_to_ch.txt', 'r', encoding='utf-8') as f:
         for line in f.readlines():
             line = line.strip().split("   ")
             en_to_ch.append(line)
@@ -35,6 +36,8 @@ def traslation(input_word):
         if input_word_lo == line[0] or input_word == line[0]:
             output_word = line[1]
             break
+        else:output_word = input_word
+
     return output_word
 
 
@@ -71,9 +74,60 @@ def generate_para1():
                     para_1 = '北京时间{0}年{1}月{2}日{3}点，俄罗斯世界杯{4}在{5}{6}打响，{7}迎战{8}。'.format(
                         timearray.year, timearray.month, timearray.day, timearray.hour, round_name, venuename,
                         stadiumname, hometeam, awayteam)
-    print para_1
+    print(para_1)
     return para_1
 
 
+#  首发
+def generate_first_round_lineup():
+    for dir_item in os.listdir(path):
+        if dir_item.endswith("getLineups.json"):
+            dir_item_path = os.path.join(path, dir_item)
+            if os.path.isfile(dir_item_path):
+                with open(dir_item_path, 'r') as f:
+                    match_info = json.load(f)
+                    #  主队
+                    two_teams = ["HomeLineUpTeamDto", "AwayLineUpTeamDto"]
+                    for team in two_teams:
+                        mb_box = list()
+                        single_team = match_info['MatchLineups'][team]['Pitch']
+                        country = match_info['MatchLineups'][team]['OfficialName']
+                        country_name = traslation(country)
+                        for player in single_team:
+                            # print(player['CommonName'],player['NumOrder'])
+                            member = "{0}-{1}".format(traslation(player['CommonName']), player['NumOrder'])
+                            mb_box.append(member)
+                        line_up = "、".join(mb_box)
+                        para_line_up = '首发及换人\n\n{0}首发：{1}\n'.format(country_name, line_up)
+                        print(para_line_up)
+    return para_line_up
+
+
+
+#  换人
+def generate_change():
+    for dir_item in os.listdir(path):
+        if dir_item.endswith("Event.json"):
+            dir_item_path = os.path.join(path, dir_item)
+            if os.path.isfile(dir_item_path):
+                with open(dir_item_path, 'r') as f:
+                    match_info = json.load(f)
+                    #  主队
+                    two_teams = ["HomeLineUpTeamDto", "AwayLineUpTeamDto"]
+                    for team in two_teams:
+                        mb_box = list()
+                        single_team = match_info['MatchLineups'][team]['Pitch']
+                        country = match_info['MatchLineups'][team]['OfficialName']
+                        country_name = traslation(country)
+                        for player in single_team:
+                            # print(player['CommonName'],player['NumOrder'])
+                            member = "{0}-{1}".format(traslation(player['CommonName']), player['NumOrder'])
+                            mb_box.append(member)
+                        line_up = "、".join(mb_box)
+                        para_line_up = '首发及换人\n\n{0}首发：{1}\n'.format(country_name, line_up)
+                        print(para_line_up)
+    return para_line_up
+
 if __name__ == '__main__':
-    generate_para1()
+    # generate_para1()
+    generate_first_round_lineup()
