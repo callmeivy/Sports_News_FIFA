@@ -13,7 +13,8 @@ from datetime import timedelta
 from collections import Counter
 
 # path = '/home/ivy/PycharmProjects/Sports_News_FIFA/20180715'
-path = 'F:\工作\Fifa_2018\\20180715\\random'
+path = r'F:\工作\Fifa_2018\20180715'
+# path = r'C:\Users\Administrator\PycharmProjects\Sports_News_FIFA'
 
 
 # 获取自定义翻译词典
@@ -105,7 +106,7 @@ def generate_first_round_lineup():
     return para_line_up
 
 
-#  换人，不仅是换人，所有的event都提取出来了
+#  换人及进球，不仅如此，所有的event都提取出来了
 def generate_change():
     event_box = list()
     total_type = list()
@@ -140,7 +141,10 @@ def generate_change():
                                     if event_type == 'Goal':
                                         playerfromid_goal = one["PlayerFromId"]
                                         teamtoid_goal = one["TeamToId"]
-                                        print('ooo', event_type, playerfromid_goal, teamtoid_goal)
+                                        print('ooo', event_type, search_id(playerfromid_goal), search_id(teamtoid_goal),
+                                              event_min)
+                                        goal_info = "第{0}分钟，{1}（{2}）".format(), )
+                                        mb_box.append(member)
                                     # Substitution:换人
                                     if event_type == 'Substitution':
                                         # 被换的球员
@@ -158,6 +162,7 @@ def generate_change():
     print(c)
     # ==========================================================
     # event日志有重复，需去重
+    # 每种事件发生的次数
     # Counter({'ThrowIn': 46, 'Dribbling': 30, 'FreeKick': 25, 'Foul': 23, 'Tackle': 19, 'Shot': 17, 'AerialDuel': 14,
     #         'Save': 8, 'Corner': 8, 'Claim': 7, 'Goal': 6, 'Substitution': 5, 'BigChance': 4, 'DroppedBall': 4,
     #         'YellowCard': 3, 'Assist': 3, 'Offside': 2, 'StartTime': 2, 'VarNotification': 2, 'EndTime': 2,
@@ -178,23 +183,21 @@ def search_id(id):
                     for team in two_teams:
                         single_team = match_info["MatchLineups"][team]
                         team_id = single_team["ID"]
-                        print(team_id, team)
+                        # print("nnn", team_id, team)
                         if str(id) == str(team_id):
                             team_name = single_team["Name"]
-                            team_name_ch = traslation(team_name)
-                            print(team_name_ch)
+                            name_ch = traslation(team_name)
                         single_team_info = match_info['MatchLineups'][team]['Pitch']
-                        # country = match_info['MatchLineups'][team]['OfficialName']
-                        # country_name = traslation(country)
                         for player in single_team_info:
                             player_id = player["ID"]
-                            if id == player_id:
-                                player_name = team["CommonName"]
-                                player_name_ch = traslation(player_name)
-                                print(player_name_ch)
+                            if str(id) == str(player_id):
+                                player_name = player["CommonName"]
+                                name_ch = traslation(player_name)
+    return name_ch
 
 
 if __name__ == '__main__':
     # generate_para1()
     # generate_first_round_lineup()
     generate_change()
+    # search_id("375518")
