@@ -5,3 +5,8 @@ France   法国
 Croatia   克罗地亚
 Hugo LLORIS   乌戈·洛里斯
 Danijel SUBASIC   达尼耶尔·苏巴西奇
+Paul POGBA   保罗·博格巴
+Mario MANDZUKIC   马里奥·曼祖基奇
+Ivan PERISIC   伊万·佩里西奇
+Antoine GRIEZMANN   安东尼·格里兹曼
+Kylian MBAPPE   基利安·姆巴佩
