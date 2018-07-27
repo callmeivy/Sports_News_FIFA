@@ -7,20 +7,25 @@
 # 第一段模板来自C5"全场战报"
 # Copyright 2018 Ivy Jin. All Rights Reserved.
 import os
+import io
 import json
 import datetime
 from datetime import timedelta
 from collections import Counter
 
 # path = '/home/ivy/PycharmProjects/Sports_News_FIFA/20180715'
-path = r'F:\工作\Fifa_2018\20180715'
+# path = r'F:\工作\Fifa_2018\20180715'
 # path = r'C:\Users\Administrator\PycharmProjects\Sports_News_FIFA'
+path = r'/home/ivy/PycharmProjects/Sports_News_FIFA_backup20180726/20180715/random'
 
 
 # 获取自定义翻译词典
 def get_en_ch():
     en_to_ch = list()
-    with open('en_to_ch.txt', 'r', encoding='utf-8') as f:
+    # with open(r'en_to_ch.txt', 'r') as f:
+    with open(r'en_to_ch.txt', 'rb') as f:  # 'rb' is binary mode, used under linux;'r' is for win
+    # with open(r'en_to_ch.txt', encoding='utf-8') as f:
+    # with io.open(r'en_to_ch.txt', "r", encoding='utf-8') as f:
         for line in f.readlines():
             line = line.strip().split("   ")
             en_to_ch.append(line)
@@ -33,9 +38,11 @@ def traslation(input_word):
     output_word = ""
     en_to_ch = get_en_ch()
     input_word_lo = input_word.lower()  # 基本翻译 为小写, 注意()
+    print("input_word_lo", input_word_lo)
     for line in en_to_ch:
         # 如果找不到，单词转为全部小写
-        if input_word_lo == line[0] or input_word == line[0]:
+        print(line[0], len(line[0]))
+        if line[0] in [input_word, input_word_lo]:
             output_word = line[1]
             break
         else:
@@ -77,6 +84,10 @@ def generate_para1():
                     para_1 = '北京时间{0}年{1}月{2}日{3}点，俄罗斯世界杯{4}在{5}{6}打响，{7}迎战{8}。'.format(
                         timearray.year, timearray.month, timearray.day, timearray.hour, round_name, venuename,
                         stadiumname, hometeam, awayteam)
+                    # ============================================================================
+                    # para_1
+                    # 北京时间2018年7月15日23点，俄罗斯世界杯Final在莫斯科卢日尼基体育场打响，法国迎战克罗地亚。
+                    # ============================================================================
     print(para_1)
     return para_1
 
@@ -103,6 +114,21 @@ def generate_first_round_lineup():
                         line_up = "、".join(mb_box)
                         para_line_up = '首发及换人\n\n{0}首发：{1}\n'.format(country_name, line_up)
                         print(para_line_up)
+                        # ==========================================================
+                        # para_line_up
+                        #
+                        # 首发及换人
+                        #
+                        # 法国首发：乌戈·洛里斯-1、Benjamin PAVARD-2、Raphael VARANE-3、Samuel UMTITI-4、保罗·博格巴-5、
+                        # 安东尼·格里兹曼-6、Olivier GIROUD-7、基利安·姆巴佩-8、Ngolo KANTE-9、Blaise MATUIDI-10、
+                        # Lucas HERNANDEZ-11
+                        #
+                        # 首发及换人
+                        #
+                        # 克罗地亚首发：达尼耶尔·苏巴西奇-1、Sime VRSALJKO-2、Ivan STRINIC-3、伊万·佩里西奇-4、Dejan LOVREN-5、
+                        # Ivan RAKITIC-6、Luka MODRIC-7、Marcelo BROZOVIC-8、马里奥·曼祖基奇-9、Ante REBIC-10、
+                        # Domagoj VIDA-11
+                        # ==========================================================
     return para_line_up
 
 
@@ -110,8 +136,10 @@ def generate_first_round_lineup():
 def generate_change():
     event_box = list()
     total_type = list()
-    path_0 = r"F:\工作\Fifa_2018"  # 换人一般在60分钟以后，样本数据囊括不到
+    # path_0 = r"F:\工作\Fifa_2018"  # 换人一般在60分钟以后，样本数据囊括不到
+    path_0 = r"/home/ivy/PycharmProjects/Sports_News_FIFA/FIFA_DATA_FEED"  # 换人一般在60分钟以后，样本数据囊括不到
     days = ['20180715', '20180716']
+    gi_box = list()
     for day in days:
         path_1 = os.path.join(path_0, day)
         for dir_item in os.listdir(path_1):
@@ -141,10 +169,12 @@ def generate_change():
                                     if event_type == 'Goal':
                                         playerfromid_goal = one["PlayerFromId"]
                                         teamtoid_goal = one["TeamToId"]
-                                        print('ooo', event_type, search_id(playerfromid_goal), search_id(teamtoid_goal),
-                                              event_min)
-                                        goal_info = "第{0}分钟，{1}（{2}）".format(), )
-                                        mb_box.append(member)
+                                        goal_info = "第{0}分钟，{1}（{2}）".format(
+                                            event_min, traslation(search_id(playerfromid_goal)),
+                                            traslation(search_id(teamtoid_goal)))
+                                            # event_min, search_id(playerfromid_goal), search_id(teamtoid_goal))
+                                        print(goal_info)
+                                        gi_box.append(goal_info)
                                     # Substitution:换人
                                     if event_type == 'Substitution':
                                         # 被换的球员
@@ -162,15 +192,28 @@ def generate_change():
     print(c)
     # ==========================================================
     # event日志有重复，需去重
-    # 每种事件发生的次数
+    # 每种事件发生的次数,如6次进球，5次换人
     # Counter({'ThrowIn': 46, 'Dribbling': 30, 'FreeKick': 25, 'Foul': 23, 'Tackle': 19, 'Shot': 17, 'AerialDuel': 14,
     #         'Save': 8, 'Corner': 8, 'Claim': 7, 'Goal': 6, 'Substitution': 5, 'BigChance': 4, 'DroppedBall': 4,
     #         'YellowCard': 3, 'Assist': 3, 'Offside': 2, 'StartTime': 2, 'VarNotification': 2, 'EndTime': 2,
     #         'TossCoin': 1, 'Punch': 1, 'EndMatch': 1})
     # ==========================================================
+    total_goal_info = "；".join(gi_box)
+    para_goal_info = '进球信息\n\n{0}\n'.format(total_goal_info)
+    print(para_goal_info)
+    # ==========================================================
+    # para_goal_info
+    #
+    # 进球信息
+    #
+    # 第18分钟，马里奥·曼祖基奇（法国）；第28分钟，伊万·佩里西奇（法国）；第38分钟，安东尼·格里兹曼（克罗地亚）；第59分钟，保罗·博格巴（克罗
+    # 地亚）；第65分钟，基利安·姆巴佩（克罗地亚）；第69分钟，马里奥·曼祖基奇（法国）
+    #
+    # ==========================================================
+    return para_goal_info
 
 
-# 根据球队或球员id查找名字，查找getLineups，但似乎换人没有在名单里
+# 根据球队或球员id查找名字（英文），查找getLineups，但似乎换人没有在名单里
 def search_id(id):
     for dir_item in os.listdir(path):
         if dir_item.endswith("getLineups.json"):
@@ -185,19 +228,17 @@ def search_id(id):
                         team_id = single_team["ID"]
                         # print("nnn", team_id, team)
                         if str(id) == str(team_id):
-                            team_name = single_team["Name"]
-                            name_ch = traslation(team_name)
+                            name_info = single_team["Name"]
                         single_team_info = match_info['MatchLineups'][team]['Pitch']
                         for player in single_team_info:
                             player_id = player["ID"]
                             if str(id) == str(player_id):
-                                player_name = player["CommonName"]
-                                name_ch = traslation(player_name)
-    return name_ch
+                                name_info = player["CommonName"]
+    return name_info
 
 
 if __name__ == '__main__':
-    # generate_para1()
+    generate_para1()
     # generate_first_round_lineup()
-    generate_change()
+    # generate_change()
     # search_id("375518")
