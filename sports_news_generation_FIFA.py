@@ -140,6 +140,9 @@ def generate_change():
     path_0 = r"/home/ivy/PycharmProjects/Sports_News_FIFA/FIFA_DATA_FEED"  # 换人一般在60分钟以后，样本数据囊括不到
     days = ['20180715', '20180716']
     gi_box = list()
+    exciting_moment = ['Offside', 'Assist', 'YellowCard', 'DroppedBall', 'BigChance', 'Substitution', 'Goal', 'Corner',
+                       'Save']
+    exciting_min_box = list()
     for day in days:
         path_1 = os.path.join(path_0, day)
         for dir_item in os.listdir(path_1):
@@ -184,6 +187,11 @@ def generate_change():
                                         # 换人的球队
                                         teamfromid = one["TeamFromId"]
                                         print('kkk', event_type, playerfromid, playertoid, teamfromid)
+                                    # 根据events提起exciting moment的时间点，从而将直播文字相关文字提取出来
+                                    if event_type in exciting_moment:
+                                        if event_min not in exciting_min_box:
+                                            exciting_min_box.append(event_min)  # event提取的精彩瞬间时间点
+
     # ==========================================================
     # event_box：后一位是分钟数
     # ['Goal', 28], ['Assist', 29], ['Tackle', 29]
@@ -193,9 +201,10 @@ def generate_change():
     # ==========================================================
     # event日志有重复，需去重
     # 每种事件发生的次数,如6次进球，5次换人
-    # Counter({'ThrowIn': 46, 'Dribbling': 30, 'FreeKick': 25, 'Foul': 23, 'Tackle': 19, 'Shot': 17, 'AerialDuel': 14,
+    # Counter({'ThrowIn': 46, 'Dribbling': 30, 'FreeKick': 25, 'Foul': 23, 'Tackle': 19, 'Shot': 17, 'AerialDuel'
+    #         争顶高空球: 14,
     #         'Save': 8, 'Corner': 8, 'Claim': 7, 'Goal': 6, 'Substitution': 5, 'BigChance': 4, 'DroppedBall': 4,
-    #         'YellowCard': 3, 'Assist': 3, 'Offside': 2, 'StartTime': 2, 'VarNotification': 2, 'EndTime': 2,
+    #         'YellowCard': 3, 'Assist': 3, 'Offside'直塞: 2, 'StartTime': 2, 'VarNotification': 2, 'EndTime': 2,
     #         'TossCoin': 1, 'Punch': 1, 'EndMatch': 1})
     # ==========================================================
     total_goal_info = "；".join(gi_box)
@@ -210,7 +219,7 @@ def generate_change():
     # 地亚）；第65分钟，基利安·姆巴佩（克罗地亚）；第69分钟，马里奥·曼祖基奇（法国）
     #
     # ==========================================================
-    return para_goal_info
+    return para_goal_info, exciting_min_box
 
 
 # 根据球队或球员id查找名字（英文），查找getLineups，但似乎换人没有在名单里
