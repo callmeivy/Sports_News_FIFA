@@ -87,7 +87,7 @@ def generate_para1(dir_item):
             #  2018-07-15T15:00:00.0000000Z <type 'unicode'>
             timearray = datetime.datetime.strptime(dateUTC[:19], "%Y-%m-%dT%H:%M:%S")
             timearray = timearray + timedelta(hours = 8 )
-            print(timearray)
+            # print(timearray)
             #  第几轮比赛转为中文
             round_name = traslation(roundname)
             stadiumname = traslation(stadiumname)
@@ -150,13 +150,12 @@ def generate_first_round_lineup(dir_item):
 
 #  换人及进球，不仅如此，所有的event都提取出来了
 def generate_change(month, day, hour):
-    print(month,day,hour)
+    # print(3333,month, day, hour)
     days=list()
     hour_n = ''
     day_until=''
     hour_until=''
     day_n=''
-    print(hour)
     if len(str(month))==1:
         month_n="0"+str(month)
     if len(str(day))==1:
@@ -184,14 +183,18 @@ def generate_change(month, day, hour):
     # path_0 = r"/home/ivy/PycharmProjects/Sports_News_FIFA/FIFA_DATA_FEED"  # 换人一般在60分钟以后，样本数据囊括不到
     path_0 = r"/home/ivy/文档/Fifa_2018"  # 换人一般在60分钟以后，样本数据囊括不到
     # days = ['20180715', '20180716']
-    gi_box = list()
+
     exciting_moment = ['Offside', 'Assist', 'YellowCard', 'DroppedBall', 'BigChance', 'Substitution', 'Goal', 'Corner',
                        'Save']
-    exciting_min_box = list()
+
     # print(len(days))
+    # day is:20180701
     for day in days:
+    #     print('yyyy',day)
         if day=='201806':
             day='20180701'
+        exciting_min_box = list()
+        gi_box = list()
         path_1 = os.path.join(path_0, day)
         for dir_item in os.listdir(path_1):
             if dir_item.endswith("getEvents.json"):  # Events.json与getEvents.json似乎不一样，后者是总结？
@@ -245,6 +248,7 @@ def generate_change(month, day, hour):
                                     # 根据events提起exciting moment的时间点，从而将直播文字相关文字提取出来
                                     if event_type in exciting_moment:
                                         if event_min not in exciting_min_box:
+                                            # print("event_minggggg",event_min)
                                             exciting_min_box.append(event_min)  # event提取的精彩瞬间时间点
 
     # ==========================================================
@@ -274,6 +278,8 @@ def generate_change(month, day, hour):
     # 地亚）；第65分钟，基利安·姆巴佩（克罗地亚）；第69分钟，马里奥·曼祖基奇（法国）
     #
     # ==========================================================
+    # for i in exciting_min_box:
+    #     print(234,i)
     return para_goal_info, exciting_min_box
 
 
@@ -344,25 +350,35 @@ def into_mysql():
 
 def whole_data():
     # 文件名20180701015932454_108599_getMatchInfo.json，最前面部分没有用，仅看108599_getMatchInfo.json
+    conn = pymysql.connect(host='localhost',
+                           port=3306,
+                           user='root',
+                           password='',
+                           database='ajaxdemo')
+    cur = conn.cursor()
     first_para = ''
     first_shot = ''
     file_unique_no=''
     already = list()
     first_all = list()
     first_shot_all=list()
-    days=['20180701', '20180702']
+    days=['20180701', '20180702', '20180703']
     # days=['20180701']
     # for dir_file in os.listdir(path):
     #     print (dir_file)
+    getMatchInfo_flag=False  #为了找完getMatchInfo开始找getLineups_flag，而不是连着找一个，配对着找
+    getLineups_flag = False
     for day in days:
         path_1 = os.path.join(path, day)
         # path_1 = os.path.join(path, dir_file)
         for dir_item in os.listdir(path_1):
             if dir_item.endswith("getMatchInfo.json"):
+                if getMatchInfo_flag==True:
+                    continue
                 # print(999, dir_item)
                 dir = os.path.join(path_1, dir_item)
                 if dir_item.split("_")[1] not in already:
-                    print(111, dir)
+                    # print(111, dir)
                     first_para = generate_para1(dir)[0]
                     print("first_para",first_para)
                     first_all.append(first_para)
@@ -375,17 +391,51 @@ def whole_data():
                     day=timearray.day
                     hour=timearray.hour
                     goal = generate_change(month,day,hour)[0]
+                    print(goal)
+                    exciting_min_box = generate_change(month, day, hour)[1]
+                    # print("exciting_min_box",len(exciting_min_box))
+                    # print("2223",month,day,hour)
+                    time_content_sort = process.text_preprocess(month,day,hour)
+                    para_3="".join(process.get_process_by_event(exciting_min_box,time_content_sort))
+                    game_name=first_para.split("，")[1]
+                    title = game_name[:game_name.index("在")]+"，"+first_para.split("，")[2][:len(first_para.split("，")[2])-1]
+                    # print(222225,title)
+                    getMatchInfo_flag=True
+                    getLineups_flag=False
+                    # exit(0)
+                    # print(para_3)
                     # print(goal)
             if dir_item.endswith("getLineups.json"):
+                if getLineups_flag == True:
+                    continue
                 if file_unique_no in dir_item:
                     if first_shot not in first_shot_all:
                         dir_1 = os.path.join(path_1, dir_item)
                         first_shot = "".join(generate_first_round_lineup(dir_1))
                         first_shot_all.append(first_shot)
                         # print(222, first_shot)
+                        getLineups_flag=True
+                        getMatchInfo_flag=False
+
+
             if len(first_para)>0 and len(first_shot)>0:
-                total_para = first_para + '\n\n\n' + first_shot+'\n'+goal
+                total_para = total_para = first_para+'\n'+ para_3+'\n\n\n'+first_shot+'\n'+goal
+                getMatchInfo_flag = False
+                getLineups_flag = False
+                first_para=''
+                first_shot=''
                 # print (total_para)
+                try:
+                    cur.execute("INSERT INTO tdt_archives (title, pubdate, abstract) VALUES (%s, %s, %s)",
+                                (title,timearray,first_para))
+                    cur.execute("INSERT INTO tdt_addonarticle (title, body) VALUES (%s, %s)", (title, total_para))
+                    conn.commit()
+                except Exception as e:
+                    conn.rollback()
+                    logging.exception('Insert operation error')
+    cur.close()
+    conn.close()
+
 
 if __name__ == '__main__':
     # generate_para1()
@@ -395,3 +445,4 @@ if __name__ == '__main__':
     # join_para()
     # into_mysql()
     whole_data()
+    # into_mysql()

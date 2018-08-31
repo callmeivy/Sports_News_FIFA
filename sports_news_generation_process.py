@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # -*- coding: utf-8 -*-
-# file: sports_news_generation_p1.py
+# file: sports_news_generation_process.py
 # author: Ivy Jin(c.ivy.jin@foxmail.com)
 # time: 07/25/2018 10:30 AM
 # 体育新闻精彩片段生成，根据文字直播内容
@@ -14,7 +14,8 @@ import sports_news_generation_FIFA as fifa
 
 data = dict()
 # path = '/home/ivy/文档/wanxiaojun/NLPCC2016Eval-Task5-AllData/sampleData/SampleData'
-path = r'C:\Users\Administrator\PycharmProjects\Sports_News_FIFA'
+# path = r'C:\Users\Administrator\PycharmProjects\Sports_News_FIFA'
+path = r'/home/ivy/PycharmProjects/Sports_News_FIFA_new/live_script/generate'
 
 
 # 获取句子模板
@@ -93,7 +94,7 @@ def get_process():
                     time_connect_content[time] = content
                     # ======================================================
     time_connect_content_sort = sorted(time_connect_content.items(), key=lambda d: d[0])
-    print(len(time_connect_content_sort))
+    # print(len(time_connect_content_sort))
     for data in time_connect_content_sort:
         if data[0] == int(data[0]):
             para_3 = '第{0}分钟，{1}。\n'.format(
@@ -106,39 +107,70 @@ def get_process():
 
 
 # 将live文本同一分钟的内容合并，这样key值就唯一
-def text_preprocess():
+def text_preprocess(month,day,hour):
+    # f=r'./final_live_sina.csv'
+    # print(777,month,day,hour)
     time_content = dict()
     time_content_sort = list()
     # for dir_item in os.listdir(path):
-    for dir_item in os.listdir(sys.path[0]):
-        time_content = dict()
-        ind = 0
-        if os.path.isfile('final_live_sina.csv'):
-            with open("final_live_sina.csv", mode="rb") as f:
-                reader = csv.reader(f)
-                # 这里不需要readlines
-                for line in reader:
-                    # linux的Python版本是2.7, win是Python3
-                    ind += 1
-                    if ind < 2:
-                        continue
-                    if line[2] == "已结束":  # python3中似乎不能用in string
-                        continue
-                    try:
-                        time = int(line[2].replace("'", ""))  # 注意是int,否则底下排序就根据str排序了，1，10,11...
-                    except:
-                        if "+" in line[2]:
-                            # 加赛，45+1---->45.1
-                            time = float(line[2].replace("+", ".").replace("'", ""))
-                    # 文本预处理，主要是标点符号规整
-                    live_script = line[0].replace("！", "")
-                    # 同一分钟直播内容合并
-                    if time in time_content:
-                        time_content[time] = time_content[time] + "，" + live_script
-                    else:
-                        time_content[time] = live_script
+    # for dir_item in os.listdir(path):
+    if len(str(month))==1:
+        month="0"+str(month)
+    if len(str(day)) == 1:
+        day = "0" + str(day)
+    if len(str(hour)) == 1:
+        hour = "0" + str(hour)
+    # print('000',path)
+    time_content = dict()
+    ind = 0
+    dir_f = os.path.join(path, "2018"+str(month)+str(day)+str(hour)+".csv")
+    # print(456,dir_f)
+    if os.path.isfile(dir_f):  # isfile后面跟的是路径，不是文件名
+        with open(dir_f, mode="r") as f:
+            reader = csv.reader(f)
+            # 这里不需要readlines
+            for line in reader:
+                if len(line)==0:
+                    continue
+                # linux的Python版本是2.7, win是Python3
+                # print(444,line)
+                ind += 1
+                if ind < 2:
+                    continue
+                if line[2] == "已结束":  # python3中似乎不能用in string
+                    continue
+                # 有部分文字是“C罗被犯规,    ---,    --”，暂且忽略
+                if "--" in line[2]:
+                    continue
+                # 原始时间格式为'    上半场 5\'4"'，将其中的分钟数提取出来
+                min_sec=(line[2].strip()).split(" ")[1]
+                # print(555, min_sec)
+                # print(555, type(min_sec))
+                if "上半场" in line[2]:
+                    time = int(min_sec.split("'")[0])  # 注意是int,否则底下排序就根据str排序了，1，10,11...
+                    if time>45:
+                        # 上半场加赛，原始是上半场46分钟---->45+1---->45.1
+                        time=float("45."+str(time-45))
+                elif "下半场" in line[2]:
+                    time = int(min_sec.split("'")[0])+45
+                    if time>90:
+                        # 上半场加赛，原始是下半场９１分钟---->90+1---->90.1
+                        time=float("90."+str(time-90))
+                # print(time)
+                # except:
+                #     if "+" in line[2]:
+                #         # 加赛，45+1---->45.1
+                #         time = float(line[2].replace("+", ".").replace("'", ""))
+                # 文本预处理，主要是标点符号规整
+                # print(999, line[0])
+                live_script = line[0].strip().replace("！", "")
+                # 同一分钟直播内容合并
+                if time in time_content:
+                    time_content[time] = time_content[time] + "，" + live_script
+                else:
+                    time_content[time] = live_script
 
-                    time_content_sort = sorted(time_content.items(), key=lambda d: d[0])  # 根据key值排序
+                time_content_sort = sorted(time_content.items(), key=lambda d: d[0])  # 根据key值排序
 
         f.close()
     # for i in time_content_sort:
@@ -147,9 +179,9 @@ def text_preprocess():
 
 
 # 根据event提取精彩瞬间的时间点，对应到文字直播的时间点
-def get_process_by_event():
-    exciting_min_box = fifa.generate_change()[1]
-    time_content_sort = text_preprocess()
+def get_process_by_event(exciting_min_box,time_content_sort):
+
+
     # =======================================================================
     # exciting_min_box:根据event提取的精彩瞬间的分钟数
     # 8
@@ -169,20 +201,23 @@ def get_process_by_event():
     # =======================================================================
     # count = 0
     para_3_head = "上半场比赛开始，双方开始互相试探，都没有贸然进攻。"
+    all_para_3 = list()
     for record in time_content_sort:
         connect_content = ''
         time = record[0]
         content = record[1]
         for min in exciting_min_box:
             if str(min) == str(time):
-                para_3 = '第{0}分钟，{1}。\n'.format(time, content)
-                print para_3
+                # print("event", time)
+                para_3 = '第{0}分钟，{1}。'.format(time, content)
+                # print para_3
                 all_para_3.append(para_3)
+    return all_para_3
 
 
 
 
-if __name__ == '__main__':
-    # text_preprocess()
-    # get_process()
-    get_process_by_event()
+# if __name__ == '__main__':
+#     # text_preprocess()
+#     # get_process()
+#     get_process_by_event()

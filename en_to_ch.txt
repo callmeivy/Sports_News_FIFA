@@ -1,4 +1,5 @@
 ﻿final   决赛
+final   决赛
 Luzhniki Stadium   卢日尼基体育场
 Moscow   莫斯科
 France   法国
@@ -10,3 +11,18 @@ Mario MANDZUKIC   马里奥·曼祖基奇
 Ivan PERISIC   伊万·佩里西奇
 Antoine GRIEZMANN   安东尼·格里兹曼
 Kylian MBAPPE   基利安·姆巴佩
+Uruguay   乌拉圭
+Portugal   葡萄牙
+Round of 16   第16轮
+SamaraSamara Arena   萨马拉体育馆
+Brazil   巴西
+Mexico   墨西哥
+Spain   西班牙
+Russia   俄罗斯
+Denmark   丹麦
+Olympic Stadium   奥林匹克体育馆
+Argentina   阿根廷
+Sweden   瑞典
+Switzerland   瑞士
+Belgium   比利时
+Japan   日本
